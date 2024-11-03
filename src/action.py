@@ -13,9 +13,16 @@ class LocatorActions:
             raise ValueError(f'Unknown elementId "{element_id}"')
         return locator
 
-    def locate_element(self, css_selector: str):
+    def locate_element_css(self, css_selector: str):
         """Locates an element using a CSS selector and returns elementId."""
-        locator = self.page.locator(css_selector)
+        locator = self.page.locator(css_selector).first
+        element_id = str(uuid.uuid4())
+        self.locator_map[element_id] = locator
+        return {"elementId": element_id}
+
+    def locate_element_xpath(self, xpath_selector: str):
+        """Locates an element using a XPath selector and returns elementId."""
+        locator = self.page.locator(f"xpath={xpath_selector}").first
         element_id = str(uuid.uuid4())
         self.locator_map[element_id] = locator
         return {"elementId": element_id}
@@ -99,6 +106,10 @@ class LocatorActions:
         """Set a value to the input field."""
         self.get_locator(element_id).fill(value)
         return {"success": True}
+
+    def send_key(self, value: str):
+        """Send key to the input field."""
+        self.page.keyboard.press(value)
 
     def page_goto(self, url: str):
         """Navigate to a specified URL."""
